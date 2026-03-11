@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>OpSta Works — Concierge Guide</title>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;600;700&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet"/>
+  <style>
+    :root { --navy:#0d1b2a; --navy-mid:#162236; --gold:#c9a84c; --gold-light:#e8c97a; --cream:#f5f0e8; --text-muted:#8a9ab5; --border:rgba(201,168,76,0.15); --sidebar-w:260px; }
+    * { margin:0; padding:0; box-sizing:border-box; }
+    body { font-family:'DM Sans',sans-serif; background:var(--navy); color:var(--cream); min-height:100vh; display:flex; }
+    .sidebar { width:var(--sidebar-w); background:var(--navy-mid); border-right:1px solid var(--border); display:flex; flex-direction:column; position:fixed; top:0; left:0; bottom:0; z-index:100; transition:transform 0.3s; }
+    .sidebar-brand { padding:24px 20px 20px; border-bottom:1px solid var(--border); }
+    .brand-row { display:flex; align-items:center; gap:10px; margin-bottom:6px; }
+    .brand-icon { width:36px; height:36px; background:linear-gradient(135deg,var(--gold),var(--gold-light)); border-radius:8px; display:flex; align-items:center; justify-content:center; font-size:16px; }
+    .brand-text { font-family:'Cormorant Garamond',serif; font-size:1.4rem; font-weight:700; color:var(--cream); }
+    .brand-text span { color:var(--gold); }
+    .property-name { font-size:0.7rem; color:var(--text-muted); letter-spacing:0.08em; text-transform:uppercase; }
+    .sidebar-nav { flex:1; overflow-y:auto; padding:16px 12px; }
+    .nav-section-label { font-size:0.65rem; font-weight:500; letter-spacing:0.15em; text-transform:uppercase; color:var(--text-muted); padding:12px 8px 6px; }
+    .nav-item { display:flex; align-items:center; gap:10px; padding:10px 12px; border-radius:8px; cursor:pointer; transition:background 0.15s; text-decoration:none; color:var(--text-muted); font-size:0.875rem; margin-bottom:2px; }
+    .nav-item:hover { background:rgba(201,168,76,0.08); color:var(--cream); }
+    .nav-item.active { background:rgba(201,168,76,0.12); color:var(--gold); }
+    .nav-item .icon { font-size:1rem; width:20px; text-align:center; }
+    .sidebar-user { padding:16px 20px; border-top:1px solid var(--border); display:flex; align-items:center; gap:10px; }
+    .user-avatar { width:34px; height:34px; background:linear-gradient(135deg,var(--gold),var(--gold-light)); border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:14px; font-weight:600; color:var(--navy); flex-shrink:0; }
+    .user-info { flex:1; } .user-name { font-size:0.82rem; font-weight:500; color:var(--cream); } .user-role { font-size:0.7rem; color:var(--text-muted); }
+    .logout-btn { background:none; border:none; cursor:pointer; color:var(--text-muted); font-size:0.75rem; padding:4px 8px; border-radius:5px; }
+    .logout-btn:hover { background:rgba(255,100,100,0.1); color:#ff6464; }
+    .main { margin-left:var(--sidebar-w); flex:1; }
+    .topbar { padding:16px 32px; border-bottom:1px solid var(--border); display:flex; align-items:center; gap:16px; background:rgba(13,27,42,0.8); backdrop-filter:blur(10px); position:sticky; top:0; z-index:50; }
+    .hamburger { display:none; background:none; border:none; cursor:pointer; color:var(--cream); font-size:1.4rem; }
+    .topbar h1 { font-family:'Cormorant Garamond',serif; font-size:1.5rem; color:var(--cream); }
+    .topbar p { font-size:0.78rem; color:var(--text-muted); }
+    .content { padding:32px; }
+
+    .cat-tabs { display:flex; gap:8px; flex-wrap:wrap; margin-bottom:28px; }
+    .cat-tab { background:rgba(255,255,255,0.04); border:1px solid var(--border); border-radius:20px; padding:7px 16px; font-size:0.82rem; color:var(--text-muted); cursor:pointer; transition:all 0.15s; }
+    .cat-tab:hover, .cat-tab.active { background:rgba(201,168,76,0.12); color:var(--gold); border-color:rgba(201,168,76,0.3); }
+
+    .attractions-grid { display:grid; grid-template-columns:repeat(auto-fill, minmax(300px, 1fr)); gap:16px; }
+    .attraction-card { background:var(--navy-mid); border:1px solid var(--border); border-radius:12px; padding:20px; transition:border-color 0.2s, transform 0.15s; }
+    .attraction-card:hover { border-color:rgba(201,168,76,0.3); transform:translateY(-2px); }
+    .att-header { display:flex; align-items:flex-start; gap:12px; margin-bottom:12px; }
+    .att-icon { font-size:1.8rem; flex-shrink:0; }
+    .att-name { font-size:0.95rem; font-weight:600; color:var(--cream); margin-bottom:3px; }
+    .att-category { font-size:0.7rem; letter-spacing:0.08em; text-transform:uppercase; color:var(--text-muted); }
+    .att-desc { font-size:0.82rem; color:var(--text-muted); line-height:1.6; margin-bottom:12px; }
+    .att-meta { display:flex; flex-wrap:wrap; gap:8px; }
+    .att-tag { font-size:0.7rem; padding:3px 10px; border-radius:10px; background:rgba(255,255,255,0.05); color:var(--text-muted); border:1px solid rgba(255,255,255,0.07); }
+    .att-tag.highlight { background:rgba(201,168,76,0.1); color:var(--gold); border-color:rgba(201,168,76,0.2); }
+    .hidden { display:none; }
+
+    @media(max-width:768px){ .sidebar{transform:translateX(-100%);} .sidebar.open{transform:translateX(0);} .main{margin-left:0;} .hamburger{display:block;} .content{padding:16px;} }
+  </style>
+</head>
+<body>
+<nav class="sidebar" id="sidebar">
+  <div class="sidebar-brand">
+    <div class="brand-row"><div class="brand-icon">🏨</div><div class="brand-text">OpSta <span>Works</span></div></div>
+    <div class="property-name">Demo Property · Downtown</div>
+  </div>
+  <div class="sidebar-nav">
+    <div class="nav-section-label">Operations</div>
+    <a href="dashboard.html" class="nav-item"><span class="icon">📊</span> Dashboard</a>
+    <a href="#" class="nav-item"><span class="icon">📢</span> MOD Log</a>
+    <a href="room-reference.html" class="nav-item"><span class="icon">🚪</span> Room Reference</a>
+    <a href="#" class="nav-item"><span class="icon">👥</span> Groups</a>
+    <div class="nav-section-label">Guest Services</div>
+    <a href="amenities.html" class="nav-item"><span class="icon">🏊</span> Amenities</a>
+    <a href="concierge.html" class="nav-item active"><span class="icon">🗺️</span> Concierge Guide</a>
+    <a href="#" class="nav-item"><span class="icon">🍽️</span> Dining</a>
+    <div class="nav-section-label">Resources</div>
+    <a href="training.html" class="nav-item"><span class="icon">📚</span> Training Hub</a>
+    <a href="#" class="nav-item"><span class="icon">📞</span> Directory</a>
+    <a href="#" class="nav-item"><span class="icon">📋</span> Policies</a>
+  </div>
+  <div class="sidebar-user">
+    <div class="user-avatar">GM</div>
+    <div class="user-info"><div class="user-name">General Manager</div><div class="user-role">Administrator</div></div>
+    <button class="logout-btn" onclick="window.location.href='index.html'">↩</button>
+  </div>
+</nav>
+
+<div class="main">
+  <div class="topbar">
+    <button class="hamburger" onclick="document.getElementById('sidebar').classList.toggle('open')">☰</button>
+    <div><h1>Concierge Guide</h1><p>Local attractions, dining &amp; guest recommendations</p></div>
+  </div>
+  <div class="content">
+    <div class="cat-tabs">
+      <div class="cat-tab active" onclick="filterCat('all',this)">All</div>
+      <div class="cat-tab" onclick="filterCat('dining',this)">🍽️ Dining</div>
+      <div class="cat-tab" onclick="filterCat('entertainment',this)">🎭 Entertainment</div>
+      <div class="cat-tab" onclick="filterCat('sports',this)">🏟️ Sports & Venues</div>
+      <div class="cat-tab" onclick="filterCat('culture',this)">🎨 Arts & Culture</div>
+      <div class="cat-tab" onclick="filterCat('outdoor',this)">🌳 Outdoor</div>
+      <div class="cat-tab" onclick="filterCat('transport',this)">🚇 Getting Around</div>
+    </div>
+
+    <div class="attractions-grid" id="attGrid"></div>
+  </div>
+</div>
+
+<script>
+const attractions = [
+  { icon:'🥩', name:'The Steakhouse at 5th', cat:'dining', desc:'Premium cuts and an exceptional wine list. Ideal for business dinners or special occasions. Reservations strongly recommended on weekends.', tags:['0.3 mi','Fine Dining','Reservations'], highlight:'Guest Favorite' },
+  { icon:'🍱', name:'Harborview Sushi Bar', cat:'dining', desc:'Modern Japanese cuisine with an extensive omakase menu. Excellent for a quiet dinner. Valet parking available.', tags:['0.5 mi','Japanese','Dinner Only'] },
+  { icon:'☕', name:'Morning Cup Coffee', cat:'dining', desc:'Artisan coffee and light breakfast options. Opens at 6AM. Perfect for early departures or quick morning stops.', tags:['0.1 mi','Café','6AM–4PM'], highlight:'In Walking Distance' },
+  { icon:'🎭', name:'City Arts Center', cat:'entertainment', desc:'Live theater, comedy shows and touring performances. Shows run Thursday through Sunday. Concierge can assist with tickets.', tags:['0.4 mi','Live Shows','Thu–Sun'] },
+  { icon:'🎵', name:'Downtown Live Music Venue', cat:'entertainment', desc:'Nationally known artists perform regularly. Standing and seated sections available. Check current schedule at the front desk.', tags:['0.6 mi','Concerts','Ticketed'], highlight:'Popular' },
+  { icon:'🏟️', name:'Metro Sports Arena', cat:'sports', desc:'Home to professional basketball and hockey. Rideshare recommended on game nights — parking fills up 90 minutes before tip-off.', tags:['0.8 mi','Pro Sports','Rideshare Rec.'] },
+  { icon:'⚽', name:'Stadium District', cat:'sports', desc:'Large multipurpose stadium hosting concerts, soccer, and major events. Event schedule available at the concierge desk.', tags:['1.2 mi','Events','Multiple Sports'] },
+  { icon:'🎨', name:'Metropolitan Art Museum', cat:'culture', desc:'World-class rotating exhibitions. Free on first Sundays. Audio tour included with admission. Café on premises.', tags:['0.7 mi','Museum','Tue–Sun'], highlight:'Recommended' },
+  { icon:'🌊', name:'Aquarium & Marine Center', cat:'culture', desc:'One of the largest aquariums in the region. Book tickets online to avoid lines. Special behind-the-scenes tours available.', tags:['0.5 mi','Family-Friendly','All Ages'] },
+  { icon:'🌳', name:'Centennial Green Park', cat:'outdoor', desc:'Large urban park great for morning runs, picnics, and outdoor events. Farmers market held on Saturday mornings.', tags:['0.2 mi','Free','Open Daily'], highlight:'In Walking Distance' },
+  { icon:'🚴', name:'Riverwalk Trail', cat:'outdoor', desc:'10-mile paved trail along the river. Bike rentals available at the trailhead. Connects to the botanical garden.', tags:['0.4 mi','Walking/Cycling','Free'] },
+  { icon:'🚇', name:'Metro Rail — Central Station', cat:'transport', desc:'Blue and Red lines accessible at Central Station. Connects to airport in approximately 25 minutes. SmarTrip or contactless payment.', tags:['0.3 mi','Rail','Airport Access'], highlight:'Airport Link' },
+  { icon:'🚖', name:'Rideshare & Taxi', cat:'transport', desc:'Uber and Lyft pickup designated at hotel front entrance. Traditional taxi stand available at street level.', tags:['On-Site','24/7'] },
+  { icon:'🅿️', name:'Hotel Parking Garage', cat:'transport', desc:'Valet and self-park available. Daily rates posted at the front desk. In/out privileges available with self-park.', tags:['On-Site','Valet & Self'], highlight:'On-Site' },
+];
+
+function filterCat(cat, el) {
+  document.querySelectorAll('.cat-tab').forEach(t => t.classList.remove('active'));
+  el.classList.add('active');
+  renderAttractions(cat);
+}
+
+function renderAttractions(cat) {
+  const filtered = cat === 'all' ? attractions : attractions.filter(a => a.cat === cat);
+  document.getElementById('attGrid').innerHTML = filtered.map(a => `
+    <div class="attraction-card">
+      <div class="att-header">
+        <div class="att-icon">${a.icon}</div>
+        <div>
+          <div class="att-name">${a.name}</div>
+          <div class="att-category">${a.cat}</div>
+        </div>
+      </div>
+      <div class="att-desc">${a.desc}</div>
+      <div class="att-meta">
+        ${a.tags.map(t=>`<span class="att-tag">${t}</span>`).join('')}
+        ${a.highlight ? `<span class="att-tag highlight">⭐ ${a.highlight}</span>` : ''}
+      </div>
+    </div>
+  `).join('');
+}
+
+renderAttractions('all');
+</script>
+</body>
+</html>

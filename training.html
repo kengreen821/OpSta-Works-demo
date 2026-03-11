@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>OpSta Works — Training Hub</title>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;600;700&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet"/>
+  <style>
+    :root { --navy:#0d1b2a; --navy-mid:#162236; --gold:#c9a84c; --gold-light:#e8c97a; --cream:#f5f0e8; --text-muted:#8a9ab5; --border:rgba(201,168,76,0.15); --sidebar-w:260px; }
+    * { margin:0; padding:0; box-sizing:border-box; }
+    body { font-family:'DM Sans',sans-serif; background:var(--navy); color:var(--cream); min-height:100vh; display:flex; }
+    .sidebar { width:var(--sidebar-w); background:var(--navy-mid); border-right:1px solid var(--border); display:flex; flex-direction:column; position:fixed; top:0; left:0; bottom:0; z-index:100; transition:transform 0.3s; }
+    .sidebar-brand { padding:24px 20px 20px; border-bottom:1px solid var(--border); }
+    .brand-row { display:flex; align-items:center; gap:10px; margin-bottom:6px; }
+    .brand-icon { width:36px; height:36px; background:linear-gradient(135deg,var(--gold),var(--gold-light)); border-radius:8px; display:flex; align-items:center; justify-content:center; font-size:16px; }
+    .brand-text { font-family:'Cormorant Garamond',serif; font-size:1.4rem; font-weight:700; color:var(--cream); }
+    .brand-text span { color:var(--gold); }
+    .property-name { font-size:0.7rem; color:var(--text-muted); letter-spacing:0.08em; text-transform:uppercase; }
+    .sidebar-nav { flex:1; overflow-y:auto; padding:16px 12px; }
+    .nav-section-label { font-size:0.65rem; font-weight:500; letter-spacing:0.15em; text-transform:uppercase; color:var(--text-muted); padding:12px 8px 6px; }
+    .nav-item { display:flex; align-items:center; gap:10px; padding:10px 12px; border-radius:8px; cursor:pointer; transition:background 0.15s; text-decoration:none; color:var(--text-muted); font-size:0.875rem; margin-bottom:2px; }
+    .nav-item:hover { background:rgba(201,168,76,0.08); color:var(--cream); }
+    .nav-item.active { background:rgba(201,168,76,0.12); color:var(--gold); }
+    .nav-item .icon { font-size:1rem; width:20px; text-align:center; }
+    .sidebar-user { padding:16px 20px; border-top:1px solid var(--border); display:flex; align-items:center; gap:10px; }
+    .user-avatar { width:34px; height:34px; background:linear-gradient(135deg,var(--gold),var(--gold-light)); border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:14px; font-weight:600; color:var(--navy); flex-shrink:0; }
+    .user-info { flex:1; } .user-name { font-size:0.82rem; font-weight:500; color:var(--cream); } .user-role { font-size:0.7rem; color:var(--text-muted); }
+    .logout-btn { background:none; border:none; cursor:pointer; color:var(--text-muted); font-size:0.75rem; padding:4px 8px; border-radius:5px; }
+    .logout-btn:hover { background:rgba(255,100,100,0.1); color:#ff6464; }
+    .main { margin-left:var(--sidebar-w); flex:1; }
+    .topbar { padding:16px 32px; border-bottom:1px solid var(--border); display:flex; align-items:center; gap:16px; background:rgba(13,27,42,0.8); backdrop-filter:blur(10px); position:sticky; top:0; z-index:50; }
+    .hamburger { display:none; background:none; border:none; cursor:pointer; color:var(--cream); font-size:1.4rem; }
+    .topbar h1 { font-family:'Cormorant Garamond',serif; font-size:1.5rem; color:var(--cream); }
+    .topbar p { font-size:0.78rem; color:var(--text-muted); }
+    .content { padding:32px; }
+
+    .progress-banner {
+      background:var(--navy-mid); border:1px solid var(--border); border-radius:12px;
+      padding:24px; margin-bottom:28px;
+      display:flex; align-items:center; gap:24px; flex-wrap:wrap;
+    }
+    .progress-stat { text-align:center; }
+    .progress-num { font-family:'Cormorant Garamond',serif; font-size:2rem; font-weight:700; color:var(--gold); }
+    .progress-label { font-size:0.7rem; text-transform:uppercase; letter-spacing:0.1em; color:var(--text-muted); }
+    .progress-bar-wrap { flex:1; min-width:200px; }
+    .progress-bar-label { display:flex; justify-content:space-between; font-size:0.75rem; color:var(--text-muted); margin-bottom:6px; }
+    .progress-bar-track { background:rgba(255,255,255,0.06); border-radius:10px; height:8px; overflow:hidden; }
+    .progress-bar-fill { height:100%; background:linear-gradient(90deg,var(--gold),var(--gold-light)); border-radius:10px; width:0; transition:width 1s ease; }
+
+    .section-title { font-family:'Cormorant Garamond',serif; font-size:1.2rem; color:var(--cream); margin-bottom:16px; }
+    .modules-grid { display:grid; grid-template-columns:repeat(auto-fill, minmax(280px, 1fr)); gap:16px; margin-bottom:32px; }
+    .module-card {
+      background:var(--navy-mid); border:1px solid var(--border); border-radius:12px; padding:20px;
+      transition:border-color 0.2s, transform 0.15s; cursor:pointer;
+    }
+    .module-card:hover { border-color:rgba(201,168,76,0.3); transform:translateY(-2px); }
+    .module-header { display:flex; align-items:flex-start; justify-content:space-between; margin-bottom:10px; }
+    .module-icon { font-size:1.6rem; }
+    .status-badge { font-size:0.65rem; font-weight:600; padding:2px 9px; border-radius:10px; }
+    .status-done { background:rgba(100,200,100,0.15); color:#64c864; }
+    .status-progress { background:rgba(201,168,76,0.15); color:var(--gold); }
+    .status-new { background:rgba(100,149,237,0.15); color:#6495ed; }
+    .module-title { font-size:0.9rem; font-weight:600; color:var(--cream); margin-bottom:6px; }
+    .module-desc { font-size:0.78rem; color:var(--text-muted); line-height:1.5; margin-bottom:12px; }
+    .module-meta { display:flex; justify-content:space-between; align-items:center; font-size:0.72rem; color:var(--text-muted); }
+    .mini-progress { display:flex; align-items:center; gap:8px; }
+    .mini-track { width:80px; height:4px; background:rgba(255,255,255,0.08); border-radius:4px; overflow:hidden; }
+    .mini-fill { height:100%; background:var(--gold); border-radius:4px; }
+
+    @media(max-width:768px){ .sidebar{transform:translateX(-100%);} .sidebar.open{transform:translateX(0);} .main{margin-left:0;} .hamburger{display:block;} .content{padding:16px;} }
+  </style>
+</head>
+<body>
+<nav class="sidebar" id="sidebar">
+  <div class="sidebar-brand">
+    <div class="brand-row"><div class="brand-icon">🏨</div><div class="brand-text">OpSta <span>Works</span></div></div>
+    <div class="property-name">Demo Property · Downtown</div>
+  </div>
+  <div class="sidebar-nav">
+    <div class="nav-section-label">Operations</div>
+    <a href="dashboard.html" class="nav-item"><span class="icon">📊</span> Dashboard</a>
+    <a href="#" class="nav-item"><span class="icon">📢</span> MOD Log</a>
+    <a href="room-reference.html" class="nav-item"><span class="icon">🚪</span> Room Reference</a>
+    <a href="#" class="nav-item"><span class="icon">👥</span> Groups</a>
+    <div class="nav-section-label">Guest Services</div>
+    <a href="amenities.html" class="nav-item"><span class="icon">🏊</span> Amenities</a>
+    <a href="concierge.html" class="nav-item"><span class="icon">🗺️</span> Concierge Guide</a>
+    <a href="#" class="nav-item"><span class="icon">🍽️</span> Dining</a>
+    <div class="nav-section-label">Resources</div>
+    <a href="training.html" class="nav-item active"><span class="icon">📚</span> Training Hub</a>
+    <a href="#" class="nav-item"><span class="icon">📞</span> Directory</a>
+    <a href="#" class="nav-item"><span class="icon">📋</span> Policies</a>
+  </div>
+  <div class="sidebar-user">
+    <div class="user-avatar">GM</div>
+    <div class="user-info"><div class="user-name">General Manager</div><div class="user-role">Administrator</div></div>
+    <button class="logout-btn" onclick="window.location.href='index.html'">↩</button>
+  </div>
+</nav>
+
+<div class="main">
+  <div class="topbar">
+    <button class="hamburger" onclick="document.getElementById('sidebar').classList.toggle('open')">☰</button>
+    <div><h1>Training Hub</h1><p>Onboarding modules, procedures &amp; knowledge base</p></div>
+  </div>
+  <div class="content">
+
+    <div class="progress-banner">
+      <div class="progress-stat"><div class="progress-num">7</div><div class="progress-label">Modules</div></div>
+      <div class="progress-stat"><div class="progress-num">4</div><div class="progress-label">Completed</div></div>
+      <div class="progress-stat"><div class="progress-num">57%</div><div class="progress-label">Overall</div></div>
+      <div class="progress-bar-wrap">
+        <div class="progress-bar-label"><span>Onboarding Progress</span><span>4 of 7</span></div>
+        <div class="progress-bar-track"><div class="progress-bar-fill" id="mainFill"></div></div>
+      </div>
+    </div>
+
+    <div class="section-title">📋 Core Training Modules</div>
+    <div class="modules-grid">
+      <div class="module-card" onclick="alert('Module: Hotel Overview\nStatus: Complete')">
+        <div class="module-header"><span class="module-icon">🏨</span><span class="status-badge status-done">✓ Complete</span></div>
+        <div class="module-title">Hotel Overview & Property Tour</div>
+        <div class="module-desc">Facility layout, key locations, emergency exits, and property orientation for new team members.</div>
+        <div class="module-meta"><span>45 min</span><div class="mini-progress"><div class="mini-track"><div class="mini-fill" style="width:100%"></div></div><span>100%</span></div></div>
+      </div>
+      <div class="module-card" onclick="alert('Module: Guest Check-In\nStatus: Complete')">
+        <div class="module-header"><span class="module-icon">🎫</span><span class="status-badge status-done">✓ Complete</span></div>
+        <div class="module-title">Check-In / Check-Out Procedures</div>
+        <div class="module-desc">PMS navigation, key encoding, room assignments, early arrivals, late checkouts, and billing.</div>
+        <div class="module-meta"><span>60 min</span><div class="mini-progress"><div class="mini-track"><div class="mini-fill" style="width:100%"></div></div><span>100%</span></div></div>
+      </div>
+      <div class="module-card" onclick="alert('Module: Guest Service Standards\nStatus: Complete')">
+        <div class="module-header"><span class="module-icon">⭐</span><span class="status-badge status-done">✓ Complete</span></div>
+        <div class="module-title">Guest Service Standards</div>
+        <div class="module-desc">Brand service philosophy, handling complaints, loyalty program benefits, and escalation protocols.</div>
+        <div class="module-meta"><span>30 min</span><div class="mini-progress"><div class="mini-track"><div class="mini-fill" style="width:100%"></div></div><span>100%</span></div></div>
+      </div>
+      <div class="module-card" onclick="alert('Module: Loyalty Programs\nStatus: Complete')">
+        <div class="module-header"><span class="module-icon">💎</span><span class="status-badge status-done">✓ Complete</span></div>
+        <div class="module-title">Loyalty & Rewards Program</div>
+        <div class="module-desc">Tier levels, points earning, elite benefits, upgrades, rollover nights, and enrollment procedures.</div>
+        <div class="module-meta"><span>25 min</span><div class="mini-progress"><div class="mini-track"><div class="mini-fill" style="width:100%"></div></div><span>100%</span></div></div>
+      </div>
+      <div class="module-card" onclick="alert('Module: MOD Procedures\nIn Progress')">
+        <div class="module-header"><span class="module-icon">📋</span><span class="status-badge status-progress">In Progress</span></div>
+        <div class="module-title">Manager on Duty (MOD) Procedures</div>
+        <div class="module-desc">MOD responsibilities, incident reporting, emergency response, vendor escalations, and shift handoffs.</div>
+        <div class="module-meta"><span>50 min</span><div class="mini-progress"><div class="mini-track"><div class="mini-fill" style="width:65%"></div></div><span>65%</span></div></div>
+      </div>
+      <div class="module-card" onclick="alert('Module: Concierge Knowledge\nNot Started')">
+        <div class="module-header"><span class="module-icon">🗺️</span><span class="status-badge status-new">Not Started</span></div>
+        <div class="module-title">Concierge & Local Knowledge</div>
+        <div class="module-desc">Local attractions, dining recommendations, transportation, event ticketing, and neighborhood expertise.</div>
+        <div class="module-meta"><span>40 min</span><div class="mini-progress"><div class="mini-track"><div class="mini-fill" style="width:0%"></div></div><span>0%</span></div></div>
+      </div>
+      <div class="module-card" onclick="alert('Module: Groups & Events\nNot Started')">
+        <div class="module-header"><span class="module-icon">👥</span><span class="status-badge status-new">Not Started</span></div>
+        <div class="module-title">Groups, Events & BEOs</div>
+        <div class="module-desc">Group block management, BEO review, rooming lists, attrition, and coordination with catering and A/V.</div>
+        <div class="module-meta"><span>55 min</span><div class="mini-progress"><div class="mini-track"><div class="mini-fill" style="width:0%"></div></div><span>0%</span></div></div>
+      </div>
+    </div>
+
+    <div class="section-title">📖 Quick Reference Guides</div>
+    <div class="modules-grid">
+      <div class="module-card" onclick="window.location.href='room-reference.html'">
+        <div class="module-header"><span class="module-icon">🚪</span></div>
+        <div class="module-title">Room Reference Guide</div>
+        <div class="module-desc">Full room directory with types, views, ADA rooms, and connecting rooms. Searchable and filterable.</div>
+        <div class="module-meta"><span>Reference</span><span style="color:var(--gold)">→ Open Guide</span></div>
+      </div>
+      <div class="module-card" onclick="window.location.href='amenities.html'">
+        <div class="module-header"><span class="module-icon">🏊</span></div>
+        <div class="module-title">Hotel Amenities</div>
+        <div class="module-desc">Pool hours, fitness center, business center, parking, and all on-site services.</div>
+        <div class="module-meta"><span>Reference</span><span style="color:var(--gold)">→ Open Guide</span></div>
+      </div>
+      <div class="module-card" onclick="window.location.href='concierge.html'">
+        <div class="module-header"><span class="module-icon">🗺️</span></div>
+        <div class="module-title">Concierge Guide</div>
+        <div class="module-desc">Local dining, entertainment, transportation, and attraction recommendations for guests.</div>
+        <div class="module-meta"><span>Reference</span><span style="color:var(--gold)">→ Open Guide</span></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  setTimeout(() => {
+    document.getElementById('mainFill').style.width = '57%';
+  }, 300);
+</script>
+</body>
+</html>

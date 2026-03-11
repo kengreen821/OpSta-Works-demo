@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>OpSta Works — Amenities</title>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;600;700&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet"/>
+  <style>
+    :root { --navy:#0d1b2a; --navy-mid:#162236; --gold:#c9a84c; --gold-light:#e8c97a; --cream:#f5f0e8; --text-muted:#8a9ab5; --border:rgba(201,168,76,0.15); --sidebar-w:260px; }
+    * { margin:0; padding:0; box-sizing:border-box; }
+    body { font-family:'DM Sans',sans-serif; background:var(--navy); color:var(--cream); min-height:100vh; display:flex; }
+    .sidebar { width:var(--sidebar-w); background:var(--navy-mid); border-right:1px solid var(--border); display:flex; flex-direction:column; position:fixed; top:0; left:0; bottom:0; z-index:100; }
+    .sidebar-brand { padding:24px 20px 20px; border-bottom:1px solid var(--border); }
+    .brand-row { display:flex; align-items:center; gap:10px; margin-bottom:6px; }
+    .brand-icon { width:36px; height:36px; background:linear-gradient(135deg,var(--gold),var(--gold-light)); border-radius:8px; display:flex; align-items:center; justify-content:center; font-size:16px; }
+    .brand-text { font-family:'Cormorant Garamond',serif; font-size:1.4rem; font-weight:700; color:var(--cream); }
+    .brand-text span { color:var(--gold); }
+    .property-name { font-size:0.7rem; color:var(--text-muted); letter-spacing:0.08em; text-transform:uppercase; }
+    .sidebar-nav { flex:1; overflow-y:auto; padding:16px 12px; }
+    .nav-section-label { font-size:0.65rem; font-weight:500; letter-spacing:0.15em; text-transform:uppercase; color:var(--text-muted); padding:12px 8px 6px; }
+    .nav-item { display:flex; align-items:center; gap:10px; padding:10px 12px; border-radius:8px; cursor:pointer; text-decoration:none; color:var(--text-muted); font-size:0.875rem; margin-bottom:2px; transition:background 0.15s; }
+    .nav-item:hover { background:rgba(201,168,76,0.08); color:var(--cream); }
+    .nav-item.active { background:rgba(201,168,76,0.12); color:var(--gold); }
+    .nav-item .icon { font-size:1rem; width:20px; text-align:center; }
+    .sidebar-user { padding:16px 20px; border-top:1px solid var(--border); display:flex; align-items:center; gap:10px; }
+    .user-avatar { width:34px; height:34px; background:linear-gradient(135deg,var(--gold),var(--gold-light)); border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:14px; font-weight:600; color:var(--navy); }
+    .user-info { flex:1; } .user-name { font-size:0.82rem; font-weight:500; color:var(--cream); } .user-role { font-size:0.7rem; color:var(--text-muted); }
+    .logout-btn { background:none; border:none; cursor:pointer; color:var(--text-muted); font-size:0.75rem; padding:4px 8px; border-radius:5px; }
+    .main { margin-left:var(--sidebar-w); flex:1; }
+    .topbar { padding:16px 32px; border-bottom:1px solid var(--border); display:flex; align-items:center; gap:16px; background:rgba(13,27,42,0.8); backdrop-filter:blur(10px); position:sticky; top:0; z-index:50; }
+    .topbar h1 { font-family:'Cormorant Garamond',serif; font-size:1.5rem; color:var(--cream); }
+    .topbar p { font-size:0.78rem; color:var(--text-muted); }
+    .content { padding:32px; }
+
+    .amenity-grid { display:grid; grid-template-columns:repeat(auto-fill, minmax(320px, 1fr)); gap:20px; }
+    .amenity-card { background:var(--navy-mid); border:1px solid var(--border); border-radius:14px; overflow:hidden; transition:border-color 0.2s, transform 0.15s; }
+    .amenity-card:hover { border-color:rgba(201,168,76,0.3); transform:translateY(-2px); }
+    .amenity-header { padding:20px 20px 0; display:flex; align-items:center; gap:12px; margin-bottom:14px; }
+    .amenity-icon { font-size:2rem; }
+    .amenity-title { font-size:1rem; font-weight:600; color:var(--cream); }
+    .amenity-subtitle { font-size:0.72rem; color:var(--text-muted); }
+    .amenity-body { padding:0 20px 20px; }
+    .amenity-desc { font-size:0.83rem; color:var(--text-muted); line-height:1.6; margin-bottom:14px; }
+    .hours-row { display:flex; justify-content:space-between; padding:7px 0; border-bottom:1px solid rgba(255,255,255,0.04); font-size:0.8rem; }
+    .hours-row:last-child { border-bottom:none; }
+    .hours-day { color:var(--text-muted); }
+    .hours-time { color:var(--cream); font-weight:500; }
+    .hours-closed { color:#e06060; }
+    .info-row { display:flex; align-items:flex-start; gap:10px; padding:8px 0; font-size:0.82rem; border-bottom:1px solid rgba(255,255,255,0.04); }
+    .info-row:last-child { border-bottom:none; }
+    .info-label { color:var(--text-muted); width:90px; flex-shrink:0; }
+    .info-val { color:var(--cream); }
+
+    @media(max-width:768px){ .sidebar{display:none;} .main{margin-left:0;} .content{padding:16px;} }
+  </style>
+</head>
+<body>
+<nav class="sidebar">
+  <div class="sidebar-brand">
+    <div class="brand-row"><div class="brand-icon">🏨</div><div class="brand-text">OpSta <span>Works</span></div></div>
+    <div class="property-name">Demo Property · Downtown</div>
+  </div>
+  <div class="sidebar-nav">
+    <div class="nav-section-label">Operations</div>
+    <a href="dashboard.html" class="nav-item"><span class="icon">📊</span> Dashboard</a>
+    <a href="#" class="nav-item"><span class="icon">📢</span> MOD Log</a>
+    <a href="room-reference.html" class="nav-item"><span class="icon">🚪</span> Room Reference</a>
+    <a href="#" class="nav-item"><span class="icon">👥</span> Groups</a>
+    <div class="nav-section-label">Guest Services</div>
+    <a href="amenities.html" class="nav-item active"><span class="icon">🏊</span> Amenities</a>
+    <a href="concierge.html" class="nav-item"><span class="icon">🗺️</span> Concierge Guide</a>
+    <a href="#" class="nav-item"><span class="icon">🍽️</span> Dining</a>
+    <div class="nav-section-label">Resources</div>
+    <a href="training.html" class="nav-item"><span class="icon">📚</span> Training Hub</a>
+    <a href="#" class="nav-item"><span class="icon">📞</span> Directory</a>
+    <a href="#" class="nav-item"><span class="icon">📋</span> Policies</a>
+  </div>
+  <div class="sidebar-user">
+    <div class="user-avatar">GM</div>
+    <div class="user-info"><div class="user-name">General Manager</div><div class="user-role">Administrator</div></div>
+    <button class="logout-btn" onclick="window.location.href='index.html'">↩</button>
+  </div>
+</nav>
+
+<div class="main">
+  <div class="topbar">
+    <div><h1>Hotel Amenities</h1><p>On-site facilities, hours &amp; guest information</p></div>
+  </div>
+  <div class="content">
+    <div class="amenity-grid">
+
+      <div class="amenity-card">
+        <div class="amenity-header"><span class="amenity-icon">🏊</span><div><div class="amenity-title">Outdoor Pool</div><div class="amenity-subtitle">Seasonal · Level 2 Deck</div></div></div>
+        <div class="amenity-body">
+          <div class="amenity-desc">Heated outdoor pool with lounge chairs and towel service. Pool bar open during peak hours.</div>
+          <div class="hours-row"><span class="hours-day">Mon–Thu</span><span class="hours-time">7:00 AM – 10:00 PM</span></div>
+          <div class="hours-row"><span class="hours-day">Fri–Sat</span><span class="hours-time">7:00 AM – 11:00 PM</span></div>
+          <div class="hours-row"><span class="hours-day">Sunday</span><span class="hours-time">8:00 AM – 9:00 PM</span></div>
+        </div>
+      </div>
+
+      <div class="amenity-card">
+        <div class="amenity-header"><span class="amenity-icon">🏋️</span><div><div class="amenity-title">Fitness Center</div><div class="amenity-subtitle">24 Hours · Level 3</div></div></div>
+        <div class="amenity-body">
+          <div class="amenity-desc">Full cardio and strength equipment, free weights, yoga mats, and complimentary towels.</div>
+          <div class="info-row"><span class="info-label">Hours</span><span class="info-val">24/7 with room key</span></div>
+          <div class="info-row"><span class="info-label">Equipment</span><span class="info-val">Treadmills, bikes, ellipticals, free weights to 50 lbs</span></div>
+          <div class="info-row"><span class="info-label">Extras</span><span class="info-val">Towels provided · Water station</span></div>
+        </div>
+      </div>
+
+      <div class="amenity-card">
+        <div class="amenity-header"><span class="amenity-icon">🅿️</span><div><div class="amenity-title">Parking</div><div class="amenity-subtitle">Valet & Self-Park Available</div></div></div>
+        <div class="amenity-body">
+          <div class="amenity-desc">On-site parking garage with valet service at the main entrance. In/out privileges with self-park.</div>
+          <div class="info-row"><span class="info-label">Valet</span><span class="info-val">$42/night · Includes in/out</span></div>
+          <div class="info-row"><span class="info-label">Self-Park</span><span class="info-val">$28/night · In/out privileges</span></div>
+          <div class="info-row"><span class="info-label">Valet Hours</span><span class="info-val">6:00 AM – Midnight</span></div>
+          <div class="info-row"><span class="info-label">Oversize</span><span class="info-val">SUVs welcome · Clearance 7'2"</span></div>
+        </div>
+      </div>
+
+      <div class="amenity-card">
+        <div class="amenity-header"><span class="amenity-icon">💼</span><div><div class="amenity-title">Business Center</div><div class="amenity-subtitle">Level 1 · Near Lobby</div></div></div>
+        <div class="amenity-body">
+          <div class="amenity-desc">Fully equipped business center with computers, printers, and private meeting pods.</div>
+          <div class="info-row"><span class="info-label">Hours</span><span class="info-val">6:00 AM – 10:00 PM</span></div>
+          <div class="info-row"><span class="info-label">Services</span><span class="info-val">Printing, scanning, fax, computers</span></div>
+          <div class="info-row"><span class="info-label">Cost</span><span class="info-val">Complimentary for guests</span></div>
+        </div>
+      </div>
+
+      <div class="amenity-card">
+        <div class="amenity-header"><span class="amenity-icon">🍳</span><div><div class="amenity-title">Restaurant & Bar</div><div class="amenity-subtitle">Social 62 · Level 1</div></div></div>
+        <div class="amenity-body">
+          <div class="amenity-desc">Full-service restaurant featuring American cuisine. Bar open until midnight on weekends.</div>
+          <div class="hours-row"><span class="hours-day">Breakfast</span><span class="hours-time">6:30 AM – 10:30 AM</span></div>
+          <div class="hours-row"><span class="hours-day">Lunch</span><span class="hours-time">11:30 AM – 2:00 PM</span></div>
+          <div class="hours-row"><span class="hours-day">Dinner</span><span class="hours-time">5:00 PM – 10:00 PM</span></div>
+          <div class="hours-row"><span class="hours-day">Bar</span><span class="hours-time">11:30 AM – Midnight (Fri/Sat 2AM)</span></div>
+        </div>
+      </div>
+
+      <div class="amenity-card">
+        <div class="amenity-header"><span class="amenity-icon">📶</span><div><div class="amenity-title">Wi-Fi</div><div class="amenity-subtitle">Property-Wide Coverage</div></div></div>
+        <div class="amenity-body">
+          <div class="amenity-desc">High-speed Wi-Fi throughout all rooms and public areas. Premium tier available for streaming.</div>
+          <div class="info-row"><span class="info-label">Standard</span><span class="info-val">Complimentary · Network: PropertyGuest</span></div>
+          <div class="info-row"><span class="info-label">Premium</span><span class="info-val">$9.95/day · Faster speeds, 4 devices</span></div>
+          <div class="info-row"><span class="info-label">Loyalty</span><span class="info-val">Elite members: Premium included</span></div>
+          <div class="info-row"><span class="info-label">Tech Help</span><span class="info-val">Dial 0 or call IT ext. 4488</span></div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+</body>
+</html>
